@@ -1,1 +1,1 @@
-"# claude-bleed-project" 
+# Bleed Project
