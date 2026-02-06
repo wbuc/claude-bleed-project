@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "brave-search": {
+      "command": "npx",
+      "args": ["-y", "dotenv-cli", "-e", ".env", "--", "npx", "-y", "@anthropic-ai/mcp-server-brave-search"]
+    }
+  }
+}
