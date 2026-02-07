@@ -25,7 +25,14 @@
       "Bash(git rm:*)",
       "Bash(git commit:*)",
       "Bash(ls:*)",
-      "Skill(bleed-brand-voice)"
+      "Skill(bleed-brand-voice)",
+      "Skill(period-dealer-brand-voice)",
+      "WebFetch(domain:www.nature.com)",
+      "WebFetch(domain:www.sciencedaily.com)",
+      "WebFetch(domain:www.news-medical.net)",
+      "WebFetch(domain:pubmed.ncbi.nlm.nih.gov)",
+      "Skill(humanizer)",
+      "Bash(git add:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
