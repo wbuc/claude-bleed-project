@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V3 — Data Helix Stream</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-deep: #080a0f;
+    --blood-glow: #e8234a;
+    --blood-dark: #7a0b1e;
+    --cell-mint: #3efab2;
+    --cell-cyan: #2ed8d8;
+    --cell-blue: #4a8eff;
+    --text-primary: #e8eaf0;
+    --text-muted: #6b7280;
+    --text-dim: #3a3f4a;
+    --pipeline-gold: #d4a853;
+  }
+
+  body {
+    width: 100%; min-height: 100vh;
+    background: var(--bg-deep);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text-primary);
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  .atmosphere {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 600px 500px at 25% 50%, rgba(196, 18, 48, 0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 500px 400px at 75% 50%, rgba(62, 250, 178, 0.06) 0%, transparent 70%);
+  }
+
+  .grid-lines {
+    position: absolute; inset: 0; z-index: 1; opacity: 0.04;
+    background-image:
+      linear-gradient(var(--text-dim) 1px, transparent 1px),
+      linear-gradient(90deg, var(--text-dim) 1px, transparent 1px);
+    background-size: 80px 80px;
+  }
+
+  .slide-container {
+    position: relative; z-index: 2;
+    width: 100%; min-height: 100vh;
+    display: flex; flex-direction: column;
+    padding: 56px 80px 48px;
+  }
+
+  .header { text-align: center; margin-bottom: 20px; animation: fadeDown 1s ease-out both; }
+  .header h1 { font-family: 'Instrument Serif', serif; font-size: 52px; font-weight: 400; line-height: 1.1; }
+  .header h1 em {
+    font-style: italic;
+    background: linear-gradient(135deg, var(--blood-glow), var(--pipeline-gold), var(--cell-mint));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .header .subtitle { font-size: 17px; color: var(--text-muted); margin-top: 10px; font-weight: 300; }
+
+  .content { flex: 1; display: flex; align-items: center; justify-content: center; }
+  .panel { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .panel-left { width: 480px; animation: fadeInLeft 1.2s ease-out 0.3s both; }
+  .panel-center { width: 280px; animation: fadeIn 1s ease-out 0.8s both; }
+  .panel-right { width: 580px; animation: fadeInRight 1.2s ease-out 0.3s both; }
+
+  /* Blood drop */
+  .drop-container { position: relative; width: 280px; height: 380px; }
+  .drop-shape {
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 230px; height: 340px;
+    filter: drop-shadow(0 0 60px rgba(196, 18, 48, 0.3));
+  }
+  .drop-svg { width: 100%; height: 100%; }
+  .drop-body { fill: url(#dropGradient); animation: dropPulse 4s ease-in-out infinite; }
+  .data-fragments {
+    position: absolute; top: 50px; left: 50%; transform: translateX(-50%);
+    width: 165px; height: 255px; overflow: hidden;
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 340'%3E%3Cpath d='M100 0 C100 0 30 120 30 210 C30 280 58 340 100 340 C142 340 170 280 170 210 C170 120 100 0 100 0Z'/%3E%3C/svg%3E");
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 340'%3E%3Cpath d='M100 0 C100 0 30 120 30 210 C30 280 58 340 100 340 C142 340 170 280 170 210 C170 120 100 0 100 0Z'/%3E%3C/svg%3E");
+    mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;
+  }
+  .fragment {
+    position: absolute; font-size: 9px; color: rgba(255, 200, 200, 0.6);
+    font-family: 'DM Sans', monospace; white-space: nowrap;
+    animation: floatChaos 8s ease-in-out infinite; font-weight: 300;
+  }
+  .fragment.num { color: rgba(255, 160, 160, 0.7); font-size: 10px; }
+  .fragment.sym { color: rgba(255, 120, 140, 0.5); font-size: 12px; }
+  .fragment.txt { color: rgba(255, 190, 190, 0.4); font-size: 8px; }
+
+  .panel-label { margin-top: 20px; text-align: center; }
+  .panel-label h3 { font-family: 'Instrument Serif', serif; font-size: 22px; font-weight: 400; margin-bottom: 4px; }
+  .panel-label p { font-size: 12px; color: var(--text-muted); font-weight: 300; line-height: 1.5; max-width: 260px; margin: 0 auto; }
+  .label-input h3 { color: var(--blood-glow); }
+  .label-output h3 { color: var(--cell-mint); }
+
+  /* Pipeline */
+  .pipeline { display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 30px 0; }
+  .pipeline-arrow { width: 120px; height: 40px; position: relative; }
+  .arrow-line { position: absolute; top: 50%; left: 0; right: 20px; height: 2px; background: linear-gradient(90deg, var(--blood-dark), var(--pipeline-gold), var(--cell-mint)); transform: translateY(-50%); opacity: 0.6; }
+  .arrow-head { position: absolute; right: 0; top: 50%; transform: translateY(-50%); border-top: 7px solid transparent; border-bottom: 7px solid transparent; border-left: 12px solid var(--cell-mint); opacity: 0.6; }
+  .arrow-particle { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: var(--pipeline-gold); animation: particleFlow 2.5s ease-in-out infinite; box-shadow: 0 0 8px var(--pipeline-gold); top: calc(50% - 2px); }
+  .arrow-particle:nth-child(4) { animation-delay: 0s; }
+  .arrow-particle:nth-child(5) { animation-delay: 0.8s; }
+  .pipeline-stage { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: rgba(212, 168, 83, 0.06); border: 1px solid rgba(212, 168, 83, 0.15); border-radius: 10px; }
+  .stage-icon { width: 30px; height: 30px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; background: rgba(212, 168, 83, 0.1); border: 1px solid rgba(212, 168, 83, 0.2); }
+  .stage-text { font-size: 10px; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase; }
+
+  /* === V3: HELIX DATA STREAM === */
+  .helix-container {
+    position: relative;
+    width: 420px;
+    height: 520px;
+  }
+
+  .helix-strand {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+    height: 100%;
+  }
+
+  /* The data nodes along the helix */
+  .helix-node {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    animation: helixFade 0.6s ease-out both;
+  }
+
+  .helix-node.left { flex-direction: row-reverse; }
+
+  .node-dot {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .node-dot::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    border: 1px solid;
+    animation: nodePulse 3s ease-in-out infinite;
+  }
+
+  .node-dot.mint { background: rgba(62, 250, 178, 0.12); }
+  .node-dot.mint::before { border-color: rgba(62, 250, 178, 0.3); }
+  .node-dot.cyan { background: rgba(46, 216, 216, 0.12); }
+  .node-dot.cyan::before { border-color: rgba(46, 216, 216, 0.3); }
+  .node-dot.blue { background: rgba(74, 142, 255, 0.12); }
+  .node-dot.blue::before { border-color: rgba(74, 142, 255, 0.3); }
+
+  .node-info { min-width: 120px; }
+  .node-label {
+    font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 2px;
+  }
+  .node-value {
+    font-family: 'Instrument Serif', serif;
+    font-size: 22px; color: var(--text-primary); line-height: 1;
+  }
+  .node-value .unit { font-size: 11px; color: var(--text-muted); font-family: 'DM Sans', sans-serif; }
+  .node-tag {
+    display: inline-block; margin-top: 4px; font-size: 9px; padding: 2px 8px;
+    border-radius: 10px; background: rgba(62, 250, 178, 0.08); color: var(--cell-mint);
+  }
+
+  .helix-node.left .node-info { text-align: right; }
+
+  /* Connecting lines between nodes */
+  .helix-line {
+    position: absolute;
+    left: 50%;
+    width: 2px;
+    background: linear-gradient(to bottom, rgba(62, 250, 178, 0.2), rgba(46, 216, 216, 0.05));
+    transform: translateX(-50%);
+  }
+
+  /* Cross connectors */
+  .helix-cross {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(62, 250, 178, 0.15), transparent);
+    animation: crossPulse 4s ease-in-out infinite;
+  }
+
+  .stats-bar { display: flex; justify-content: center; gap: 64px; padding-top: 16px; animation: fadeUp 1s ease-out 1.5s both; }
+  .stat { text-align: center; }
+  .stat-value { font-family: 'Instrument Serif', serif; font-size: 32px; background: linear-gradient(135deg, var(--cell-mint), var(--cell-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; }
+  .stat-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; letter-spacing: 1px; text-transform: uppercase; }
+
+  .corner-mark { position: absolute; font-size: 10px; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; z-index: 2; }
+  .corner-mark.tl { top: 24px; left: 32px; }
+  .corner-mark.br { bottom: 24px; right: 32px; }
+
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes fadeInLeft { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes fadeInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes dropPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.85; } }
+  @keyframes floatChaos { 0% { transform: translate(0,0) rotate(0deg); opacity: 0.4; } 25% { transform: translate(8px,-15px) rotate(5deg); opacity: 0.7; } 50% { transform: translate(-5px,-8px) rotate(-3deg); opacity: 0.3; } 75% { transform: translate(12px,10px) rotate(7deg); opacity: 0.6; } 100% { transform: translate(0,0) rotate(0deg); opacity: 0.4; } }
+  @keyframes particleFlow { 0% { left: 0; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { left: calc(100% - 4px); opacity: 0; } }
+  @keyframes helixFade { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+  @keyframes nodePulse { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.08); } }
+  @keyframes crossPulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.8; } }
+
+  @media (max-width: 1024px) {
+    .slide-container { padding: 40px 32px 32px; }
+    .header h1 { font-size: 36px; }
+    .content { flex-direction: column; gap: 32px; }
+    .panel-left, .panel-center, .panel-right { width: 100%; max-width: 480px; }
+    .drop-container { width: 200px; height: 280px; margin: 0 auto; }
+    .drop-shape { width: 170px; height: 250px; }
+    .data-fragments { width: 120px; height: 190px; top: 36px; }
+    .pipeline { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 10px; padding: 0; }
+    .pipeline-arrow { width: 70px; height: 28px; }
+    .helix-container { width: 100%; max-width: 380px; height: 450px; margin: 0 auto; }
+    .stats-bar { gap: 32px; flex-wrap: wrap; }
+  }
+
+  @media (max-width: 600px) {
+    .slide-container { padding: 24px 16px; }
+    .header h1 { font-size: 24px; }
+    .header .subtitle { font-size: 13px; }
+    .helix-container { height: 400px; max-width: 320px; }
+    .node-value { font-size: 18px; }
+    .node-dot { width: 32px; height: 32px; font-size: 13px; }
+    .stats-bar { gap: 16px; }
+    .stat { min-width: 40%; }
+    .stat-value { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="atmosphere"></div>
+<div class="grid-lines"></div>
+<span class="corner-mark tl">Confidential</span>
+<span class="corner-mark br">V3 — Data Helix</span>
+
+<div class="slide-container">
+  <div class="header">
+    <h1>From Raw Signal to <em>Structured Intelligence</em></h1>
+    <p class="subtitle">One drop. Thousands of biomarkers. Infinite insight — structured, scored, and ready.</p>
+  </div>
+
+  <div class="content">
+    <div class="panel panel-left">
+      <div class="drop-container">
+        <div class="drop-shape">
+          <svg class="drop-svg" viewBox="0 0 280 400" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="dropGradient" cx="40%" cy="45%" r="55%">
+                <stop offset="0%" stop-color="#e8234a" /><stop offset="40%" stop-color="#c41230" />
+                <stop offset="80%" stop-color="#7a0b1e" /><stop offset="100%" stop-color="#3d0510" />
+              </radialGradient>
+            </defs>
+            <path class="drop-body" d="M140 12 C140 12 50 150 50 250 C50 330 88 388 140 388 C192 388 230 330 230 250 C230 150 140 12 140 12Z" />
+          </svg>
+        </div>
+        <div class="data-fragments">
+          <span class="fragment num" style="top:30%;left:15%;animation-delay:0s;">0.847</span>
+          <span class="fragment sym" style="top:45%;left:55%;animation-delay:0.5s;">△</span>
+          <span class="fragment txt" style="top:55%;left:20%;animation-delay:1s;">glucose</span>
+          <span class="fragment num" style="top:65%;left:45%;animation-delay:2s;">12.4</span>
+          <span class="fragment txt" style="top:75%;left:35%;animation-delay:3s;">lipid</span>
+          <span class="fragment num" style="top:60%;left:10%;animation-delay:4s;">3.2x</span>
+          <span class="fragment sym" style="top:25%;left:45%;animation-delay:4.5s;">⬡</span>
+          <span class="fragment txt" style="top:70%;left:60%;animation-delay:5s;">CRP</span>
+          <span class="fragment num" style="top:80%;left:25%;animation-delay:5.5s;">98.6</span>
+          <span class="fragment txt" style="top:48%;left:48%;animation-delay:4.2s;">cortisol</span>
+        </div>
+      </div>
+      <div class="panel-label label-input">
+        <h3>Raw Biological Signal</h3>
+        <p>Dense, unstructured biomarker data</p>
+      </div>
+    </div>
+
+    <div class="panel panel-center">
+      <div class="pipeline">
+        <div class="pipeline-arrow"><div class="arrow-line"></div><div class="arrow-head"></div><div class="arrow-particle"></div><div class="arrow-particle"></div></div>
+        <div class="pipeline-stage"><div class="stage-icon">⚗</div><span class="stage-text">Extract</span></div>
+        <div class="pipeline-stage"><div class="stage-icon">⧉</div><span class="stage-text">Normalize</span></div>
+        <div class="pipeline-stage"><div class="stage-icon">◎</div><span class="stage-text">Structure</span></div>
+        <div class="pipeline-stage"><div class="stage-icon">✦</div><span class="stage-text">Score</span></div>
+        <div class="pipeline-arrow"><div class="arrow-line"></div><div class="arrow-head"></div><div class="arrow-particle"></div><div class="arrow-particle"></div></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Helix Data Stream -->
+    <div class="panel panel-right">
+      <div class="helix-container">
+        <div class="helix-strand">
+          <!-- Vertical connector -->
+          <div class="helix-line" style="top: 30px; height: 460px;"></div>
+
+          <!-- Cross connectors -->
+          <div class="helix-cross" style="top: 50px; width: 200px; animation-delay: 0s;"></div>
+          <div class="helix-cross" style="top: 140px; width: 180px; animation-delay: 0.5s;"></div>
+          <div class="helix-cross" style="top: 230px; width: 200px; animation-delay: 1s;"></div>
+          <div class="helix-cross" style="top: 320px; width: 180px; animation-delay: 1.5s;"></div>
+          <div class="helix-cross" style="top: 410px; width: 200px; animation-delay: 2s;"></div>
+          <div class="helix-cross" style="top: 500px; width: 180px; animation-delay: 2.5s;"></div>
+
+          <!-- Node pairs alternating left/right -->
+          <div class="helix-node" style="top: 20px; right: 50%; margin-right: 30px; animation-delay: 0.8s;">
+            <div class="node-dot mint">🧬</div>
+            <div class="node-info">
+              <div class="node-label">Genomic</div>
+              <div class="node-value">847<span class="unit"> variants</span></div>
+              <span class="node-tag">Sequenced</span>
+            </div>
+          </div>
+
+          <div class="helix-node left" style="top: 110px; left: 50%; margin-left: 30px; animation-delay: 1.0s;">
+            <div class="node-dot cyan">🔬</div>
+            <div class="node-info">
+              <div class="node-label">Proteomics</div>
+              <div class="node-value">312<span class="unit"> proteins</span></div>
+              <span class="node-tag">Quantified</span>
+            </div>
+          </div>
+
+          <div class="helix-node" style="top: 200px; right: 50%; margin-right: 30px; animation-delay: 1.2s;">
+            <div class="node-dot blue">⚡</div>
+            <div class="node-info">
+              <div class="node-label">Metabolic</div>
+              <div class="node-value">94.2<span class="unit"> score</span></div>
+              <span class="node-tag">Optimal</span>
+            </div>
+          </div>
+
+          <div class="helix-node left" style="top: 290px; left: 50%; margin-left: 30px; animation-delay: 1.4s;">
+            <div class="node-dot mint">🫀</div>
+            <div class="node-info">
+              <div class="node-label">Cardiac</div>
+              <div class="node-value">0.8<span class="unit"> ratio</span></div>
+              <span class="node-tag">Low Risk</span>
+            </div>
+          </div>
+
+          <div class="helix-node" style="top: 380px; right: 50%; margin-right: 30px; animation-delay: 1.6s;">
+            <div class="node-dot cyan">🛡</div>
+            <div class="node-info">
+              <div class="node-label">Immune</div>
+              <div class="node-value">12.4<span class="unit"> k/uL</span></div>
+              <span class="node-tag">Active</span>
+            </div>
+          </div>
+
+          <div class="helix-node left" style="top: 470px; left: 50%; margin-left: 30px; animation-delay: 1.8s;">
+            <div class="node-dot blue">⚖</div>
+            <div class="node-info">
+              <div class="node-label">Hormonal</div>
+              <div class="node-value">2.1<span class="unit"> mIU/L</span></div>
+              <span class="node-tag">Balanced</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel-label label-output">
+        <h3>Structured Intelligence</h3>
+        <p>Interlinked data helix — each node scored, classified, and connected</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-value">1</div><div class="stat-label">Drop of blood</div></div>
+    <div class="stat"><div class="stat-value">2,000+</div><div class="stat-label">Biomarkers detected</div></div>
+    <div class="stat"><div class="stat-value">6</div><div class="stat-label">Data streams</div></div>
+    <div class="stat"><div class="stat-value">&lt;60s</div><div class="stat-label">Processing time</div></div>
+  </div>
+</div>
+</body>
+</html>

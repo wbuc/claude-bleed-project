@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Five Teams. One Marker. Five Incompatible Results.</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-deep: #080a0f;
+    --bg-card: #0d1017;
+    --blood-core: #c41230;
+    --blood-glow: #e8234a;
+    --blood-dark: #7a0b1e;
+    --crimson: #dc143c;
+    --gold: #d4a853;
+    --gold-bright: #f0b429;
+    --text-primary: #e8eaf0;
+    --text-muted: #6b7280;
+    --text-dim: #3a3f4a;
+  }
+
+  body {
+    width: 100%;
+    min-height: 100vh;
+    background: var(--bg-deep);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text-primary);
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Atmospheric background — red/crimson problem palette */
+  .atmosphere {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 600px 500px at 30% 50%, rgba(196, 18, 48, 0.1) 0%, transparent 70%),
+      radial-gradient(ellipse 500px 400px at 70% 40%, rgba(212, 168, 83, 0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 400px 300px at 50% 70%, rgba(220, 20, 60, 0.05) 0%, transparent 70%);
+    z-index: 0;
+  }
+
+  .noise-overlay {
+    position: absolute;
+    inset: 0;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .grid-lines {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    opacity: 0.04;
+    background-image:
+      linear-gradient(var(--text-dim) 1px, transparent 1px),
+      linear-gradient(90deg, var(--text-dim) 1px, transparent 1px);
+    background-size: 80px 80px;
+  }
+
+  /* Main layout */
+  .slide-container {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 48px 64px 40px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 28px;
+    animation: fadeDown 1s ease-out both;
+  }
+
+  .header h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 48px;
+    font-weight: 400;
+    letter-spacing: -0.5px;
+    color: var(--text-primary);
+    line-height: 1.15;
+  }
+
+  .header h1 em {
+    font-style: italic;
+    background: linear-gradient(135deg, var(--blood-glow), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header .subtitle {
+    font-size: 16px;
+    color: var(--text-muted);
+    margin-top: 12px;
+    font-weight: 300;
+    letter-spacing: 0.3px;
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5;
+  }
+
+  /* === BABEL COLUMNS === */
+  .columns-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 1.2s ease-out 0.4s both;
+  }
+
+  .columns-wrapper {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    width: 100%;
+    max-width: 1100px;
+    position: relative;
+  }
+
+  .data-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .column-header {
+    padding: 16px 12px;
+    text-align: center;
+    border-bottom: 1px solid rgba(196, 18, 48, 0.2);
+    background: rgba(196, 18, 48, 0.04);
+  }
+
+  .column-header .team-icon {
+    font-size: 20px;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .column-header .team-name {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--blood-glow);
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+  }
+
+  .column-header .team-org {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 3px;
+    font-weight: 300;
+  }
+
+  .column-rows {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .column-row {
+    padding: 12px 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 300;
+    position: relative;
+    transition: background 0.3s ease;
+  }
+
+  .column-row .row-label {
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+
+  .column-row .row-value {
+    font-family: 'DM Sans', monospace;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  /* The gold-highlighted "same marker" row */
+  .column-row.highlight {
+    background: rgba(212, 168, 83, 0.08);
+    border-left: 2px solid var(--gold);
+    border-right: 2px solid var(--gold);
+  }
+
+  .column-row.highlight .row-label {
+    color: var(--gold);
+  }
+
+  .column-row.highlight .row-value {
+    color: var(--gold-bright);
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  .column-row.highlight-top {
+    border-top: 2px solid var(--gold);
+  }
+
+  .column-row.highlight-bottom {
+    border-bottom: 2px solid var(--gold);
+  }
+
+  /* Broken link icons between columns */
+  .break-icon {
+    position: absolute;
+    right: -14px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: var(--blood-glow);
+    background: var(--bg-deep);
+    border: 1px solid rgba(196, 18, 48, 0.3);
+    border-radius: 50%;
+    animation: breakPulse 3s ease-in-out infinite;
+  }
+
+  .data-column:last-child .break-icon { display: none; }
+
+  /* Column dividers */
+  .data-column + .data-column {
+    border-left: 1px dashed rgba(196, 18, 48, 0.15);
+  }
+
+  /* === FALLING DEBRIS === */
+  .debris-zone {
+    position: relative;
+    width: 100%;
+    max-width: 1100px;
+    height: 70px;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+
+  .debris-particle {
+    position: absolute;
+    font-family: 'DM Sans', monospace;
+    font-size: 10px;
+    color: rgba(196, 18, 48, 0.4);
+    animation: debrisFall linear infinite;
+    white-space: nowrap;
+  }
+
+  /* Debris label */
+  .debris-label {
+    text-align: center;
+    margin-top: 2px;
+    font-size: 10px;
+    color: rgba(196, 18, 48, 0.35);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    animation: fadeIn 1s ease-out 2s both;
+  }
+
+  /* === STATS BAR === */
+  .stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 64px;
+    padding-top: 24px;
+    margin-top: auto;
+    animation: fadeUp 1s ease-out 1.5s both;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-value {
+    font-family: 'Instrument Serif', serif;
+    font-size: 30px;
+    background: linear-gradient(135deg, var(--blood-glow), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 400;
+  }
+
+  /* Corner marks */
+  .corner-mark {
+    position: absolute;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 400;
+    z-index: 2;
+  }
+  .corner-mark.tl { top: 24px; left: 32px; }
+  .corner-mark.br { bottom: 24px; right: 32px; }
+
+  /* === ANIMATIONS === */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes breakPulse {
+    0%, 100% { opacity: 0.6; transform: translateY(-50%) scale(1); }
+    50% { opacity: 1; transform: translateY(-50%) scale(1.15); }
+  }
+
+  @keyframes debrisFall {
+    0% { transform: translateY(-10px) rotate(0deg); opacity: 0.5; }
+    70% { opacity: 0.3; }
+    100% { transform: translateY(70px) rotate(15deg); opacity: 0; }
+  }
+
+  @keyframes columnSlideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .data-column:nth-child(1) { animation: columnSlideUp 0.7s ease-out 0.5s both; }
+  .data-column:nth-child(2) { animation: columnSlideUp 0.7s ease-out 0.7s both; }
+  .data-column:nth-child(3) { animation: columnSlideUp 0.7s ease-out 0.9s both; }
+  .data-column:nth-child(4) { animation: columnSlideUp 0.7s ease-out 1.1s both; }
+  .data-column:nth-child(5) { animation: columnSlideUp 0.7s ease-out 1.3s both; }
+
+  /* === TABLET === */
+  @media (max-width: 1024px) {
+    .slide-container { padding: 36px 28px 28px; }
+    .header h1 { font-size: 34px; }
+    .header .subtitle { font-size: 14px; }
+
+    .columns-wrapper { max-width: 100%; }
+
+    .column-header { padding: 12px 8px; }
+    .column-header .team-icon { font-size: 16px; }
+    .column-header .team-name { font-size: 9px; }
+    .column-header .team-org { font-size: 8px; }
+
+    .column-row { padding: 10px 6px; }
+    .column-row .row-label { font-size: 8px; }
+    .column-row .row-value { font-size: 11px; }
+    .column-row.highlight .row-value { font-size: 12px; }
+
+    .break-icon { width: 22px; height: 22px; font-size: 11px; right: -11px; }
+
+    .stats-bar { gap: 32px; flex-wrap: wrap; }
+    .stat-value { font-size: 24px; }
+    .stat-label { font-size: 10px; }
+  }
+
+  /* === MOBILE === */
+  @media (max-width: 600px) {
+    .slide-container { padding: 24px 16px 20px; }
+    .header { margin-bottom: 16px; }
+    .header h1 { font-size: 24px; }
+    .header .subtitle { font-size: 12px; margin-top: 8px; }
+
+    .columns-wrapper {
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .data-column + .data-column {
+      border-left: none;
+      border-top: 1px dashed rgba(196, 18, 48, 0.15);
+    }
+
+    .data-column {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .column-header {
+      width: 100%;
+      border-bottom: none;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-align: left;
+    }
+
+    .column-header .team-icon { margin-bottom: 0; font-size: 18px; }
+
+    .column-rows {
+      flex-direction: row;
+      flex-wrap: wrap;
+      width: 100%;
+      padding: 0 8px 8px;
+      gap: 6px;
+    }
+
+    .column-row {
+      flex: 1;
+      min-width: 80px;
+      padding: 8px 6px;
+      border-bottom: none;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 6px;
+    }
+
+    .column-row.highlight {
+      border-left: 2px solid var(--gold);
+      border-right: none;
+    }
+
+    .break-icon {
+      display: none;
+    }
+
+    .debris-zone { height: 40px; }
+
+    .stats-bar {
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding-top: 16px;
+    }
+    .stat { min-width: 40%; }
+    .stat-value { font-size: 20px; }
+    .stat-label { font-size: 9px; }
+
+    .corner-mark { font-size: 8px; }
+    .corner-mark.tl { top: 12px; left: 16px; }
+    .corner-mark.br { bottom: 12px; right: 16px; }
+    .grid-lines { background-size: 40px 40px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="atmosphere"></div>
+<div class="noise-overlay"></div>
+<div class="grid-lines"></div>
+
+<span class="corner-mark tl">Confidential</span>
+<span class="corner-mark br">The Comparability Crisis</span>
+
+<div class="slide-container">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>Five Teams. One Marker. <em>Five Incompatible Results.</em></h1>
+    <p class="subtitle">Drug trials, diagnostics, and biomarker research all measure the same blood — in ways that make their data impossible to compare, combine, or reproduce.</p>
+  </div>
+
+  <!-- Babel Columns -->
+  <div class="columns-section">
+    <div class="columns-wrapper">
+
+      <!-- Column 1: Drug Trial -->
+      <div class="data-column">
+        <div class="column-header">
+          <span class="team-icon">💊</span>
+          <span class="team-name">Drug Trial</span>
+          <span class="team-org">Phase II Oncology</span>
+        </div>
+        <div class="column-rows">
+          <div class="column-row">
+            <div class="row-label">Collection</div>
+            <div class="row-value">EDTA Tube</div>
+          </div>
+          <div class="column-row">
+            <div class="row-label">Processing</div>
+            <div class="row-value">4°C / 2hr</div>
+          </div>
+          <div class="column-row highlight highlight-top">
+            <div class="row-label">CRP Result</div>
+            <div class="row-value">8.4 mg/L</div>
+          </div>
+          <div class="column-row highlight highlight-bottom">
+            <div class="row-label">IL-6 Result</div>
+            <div class="row-value">12.7 pg/mL</div>
+          </div>
+          <div class="column-row">
+            <div class="row-label">Format</div>
+            <div class="row-value">CSV / REDCap</div>
+          </div>
+          <div class="column-row">
+            <div class="row-label">Standard</div>
+            <div class="row-value">Internal v2.1</div>
+          </div>
+        </div>
+        <div class="break-icon">⚡</div>
+      </div>
+
+      <!-- Column 2: Biomarker Study -->
+      <div class="data-column">
+        <div class="column-header">
+          <span class="team-icon">🔬</span>
+          <span class="team-name">Biomarker Study</span>
+          <span class="team-org">Discovery Cohort</span>
+        </div>
+        <div class="column-rows">
+          <div class="column-row">
+            <div class="row-label">Collection</div>
+            <div class="row-value">Heparin Tube</div>
+          </div>
+          <div class="column-row">
+            <div class="row-label">Processing</div>
+            <div class="row-value">RT / 30min</div>
+          </div>
+          <div class="column-row highlight highlight-top">
+            <div class="row-label">CRP Result</div>
+            <div class="row-value">84 nmol/L</div>
+          </div>
+          <div class="column-row highlight highlight-bottom">
+            <div class="row-label">IL-6 Result</div>
+            <div class="row-value">0.61 ng/dL</div>
+          </div>
+          <div class="column-row">
+            <div class="row-label">Format</div>
+            <div class="row-value">JSON / FHIR</div>
+          </div>
+          <div class="column-row">
+            <div class="row-label">Standard</div>
+            <div class="row-value">LOINC mapped</div>
+          </div>
+        </div>
+        <div class="break-icon">⚡</div>
+      </div>
+
+      <!-- Column 3: Diagnostics Lab -->
+      <div class="data-column">
+        <div class="column-header">
+          <span class="team-icon">🏥</span>
+          <span class="team-name">Diagnostics Lab</span>
+          <span class="team-org">CLIA Certified</span>
+        </div>
+        <div class="column-rows">
+          <div class="column-row">
+            <div class="row-label">Collection</div>
+            <div class="row-value">SST (Serum)</div>
+          </div>
+          <div class="column-row">
+            <div class="row-label">Processing</div>
+            <div class="row-value">Centrifuge / 1hr</div>
+          </div>
+          <div class="column-row highlight highlight-top">
+            <div class="row-label">CRP Result</div>
+            <div class="row-value">0.84 mg/dL</div>
+          </div>
+          <div class="column-row highlight highlight-bottom">
+            <div class="row-label">IL-6 Result</div>
+            <div class="row-value">12,700 fg/mL</div>
+          </div>
+          <div class="column-row">
+            <div class="row-label">Format</div>
+            <div class="row-value">HL7 v2 / PDF</div>
+          </div>
+          <div class="column-row">
+            <div class="row-label">Standard</div>
+            <div class="row-value">CAP Protocol</div>
+          </div>
+        </div>
+        <div class="break-icon">⚡</div>
+      </div>
+
+      <!-- Column 4: Therapy Research -->
+      <div class="data-column">
+        <div class="column-header">
+          <span class="team-icon">🧬</span>
+          <span class="team-name">Therapy Research</span>
+          <span class="team-org">Immunotherapy Lab</span>
+        </div>
+        <div class="column-rows">
+          <div class="column-row">
+            <div class="row-label">Collection</div>
+            <div class="row-value">Citrate Tube</div>
+          </div>
+          <div class="column-row">
+            <div class="row-label">Processing</div>
+            <div class="row-value">-80°C / Flash</div>
+          </div>
+          <div class="column-row highlight highlight-top">
+            <div class="row-label">CRP Result</div>
+            <div class="row-value">HIGH (>5)</div>
+          </div>
+          <div class="column-row highlight highlight-bottom">
+            <div class="row-label">IL-6 Result</div>
+            <div class="row-value">++  (elevated)</div>
+          </div>
+          <div class="column-row">
+            <div class="row-label">Format</div>
+            <div class="row-value">Excel / Email</div>
+          </div>
+          <div class="column-row">
+            <div class="row-label">Standard</div>
+            <div class="row-value">PI discretion</div>
+          </div>
+        </div>
+        <div class="break-icon">⚡</div>
+      </div>
+
+      <!-- Column 5: Inflammation Panel -->
+      <div class="data-column">
+        <div class="column-header">
+          <span class="team-icon">🩸</span>
+          <span class="team-name">Inflammation Panel</span>
+          <span class="team-org">Multi-site Trial</span>
+        </div>
+        <div class="column-rows">
+          <div class="column-row">
+            <div class="row-label">Collection</div>
+            <div class="row-value">PAXgene Tube</div>
+          </div>
+          <div class="column-row">
+            <div class="row-label">Processing</div>
+            <div class="row-value">Ambient / 6hr</div>
+          </div>
+          <div class="column-row highlight highlight-top">
+            <div class="row-label">CRP Result</div>
+            <div class="row-value">log₂ 3.07</div>
+          </div>
+          <div class="column-row highlight highlight-bottom">
+            <div class="row-label">IL-6 Result</div>
+            <div class="row-value">Z-score 1.8</div>
+          </div>
+          <div class="column-row">
+            <div class="row-label">Format</div>
+            <div class="row-value">Parquet / S3</div>
+          </div>
+          <div class="column-row">
+            <div class="row-label">Standard</div>
+            <div class="row-value">Custom Ontology</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Falling debris zone -->
+    <div class="debris-zone" id="debrisZone"></div>
+    <div class="debris-label">Incompatible data — discarded, duplicated, wasted</div>
+  </div>
+
+  <!-- Stats bar -->
+  <div class="stats-bar">
+    <div class="stat">
+      <div class="stat-value">340+</div>
+      <div class="stat-label">Collection protocols</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">&lt;5%</div>
+      <div class="stat-label">Cross-comparable</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">$2.8B</div>
+      <div class="stat-label">Redundant spend / yr</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">70%</div>
+      <div class="stat-label">Reproducibility failures</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Debris particle animation
+  const debrisZone = document.getElementById('debrisZone');
+  const debrisFragments = [
+    '8.4 mg/L', '84 nmol/L', '0.84 mg/dL', 'HIGH', 'log₂ 3.07',
+    'CRP', 'IL-6', 'EDTA', 'Heparin', 'Citrate',
+    'CSV', 'JSON', 'HL7', 'Excel', 'Parquet',
+    'pg/mL', 'ng/dL', 'fg/mL', '++', 'Z:1.8',
+    'v2.1', 'LOINC', 'CAP', 'PI?', 'Custom',
+    '12.7', '0.61', '12700', '?', 'N/A'
+  ];
+
+  function spawnDebris() {
+    const el = document.createElement('span');
+    el.className = 'debris-particle';
+    el.textContent = debrisFragments[Math.floor(Math.random() * debrisFragments.length)];
+    el.style.left = (Math.random() * 95) + '%';
+    el.style.animationDuration = (2 + Math.random() * 3) + 's';
+    el.style.fontSize = (8 + Math.random() * 4) + 'px';
+    el.style.opacity = (0.2 + Math.random() * 0.4);
+    debrisZone.appendChild(el);
+    setTimeout(() => el.remove(), 5000);
+  }
+
+  setInterval(spawnDebris, 300);
+  // Initial burst
+  for (let i = 0; i < 8; i++) setTimeout(spawnDebris, i * 100);
+</script>
+
+</body>
+</html>

@@ -1,5 +1,8 @@
 # Project Notes
 
+## General Information
+- Your responses should be clear and to the point. Leading with the result followed by an explenation.
+
 ## MCP Configuration
 - Using Brave Search MCP for web search (configured in `.mcp.json`)
 - Brave API key stored in `.env`
