@@ -42,8 +42,11 @@ Papers and URLs already verified. Fetch these to cross-check claims when creatin
 - **Used in:** `output/content/ovarian-aging-genes/`
 
 ## MCP Configuration
-- Using Brave Search MCP for web search (configured in `.mcp.json`)
-- Brave API key stored in `.env`
+All MCP servers are project-scoped (stored in `.mcp.json`).
+
+- **Brave Search** — web search (`BRAVE_API_KEY` in `.env`)
+- **Apple Docs** — Apple developer documentation lookup
+  - Install: `claude mcp add --scope project apple-docs -- npx -y @kimsungwhee/apple-docs-mcp@latest`
 - Removed chrome-devtools MCP (not needed)
 
 ## /last30days Skill

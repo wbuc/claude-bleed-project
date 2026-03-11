@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Font Pairing Comparison — Bleed App</title>
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=DM+Serif+Display:ital@0;1&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Mulish:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Manrope:wght@400;500;600;700&family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Lato:ital,wght@0,400;0,700;0,900;1,400&family=Merriweather:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Raleway:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Figtree:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Lexend:wght@400;500;600;700&family=Zilla+Slab:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+<!-- Fontshare -->
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=general-sans@400,500,600&f[]=clash-display@400,500,600,700&display=swap" rel="stylesheet">
+
+<!-- Typekit: Novecento Sans (from perioddealer.com) -->
+<link href="https://use.typekit.net/mud6rbw.css" rel="stylesheet">
+<link href="https://use.typekit.net/mbw2bak.css" rel="stylesheet">
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0e0e0e;
+    --surface: #1a1a1a;
+    --border: #2a2a2a;
+    --text: #e8e8e8;
+    --text-muted: #888;
+    --accent: #c44569;
+    --accent-soft: rgba(196, 69, 105, 0.15);
+    --tag-bg: #252525;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 0;
+  }
+
+  .page-header {
+    padding: 48px 40px 32px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .page-header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+  .page-header p {
+    color: var(--text-muted);
+    font-size: 15px;
+    max-width: 640px;
+    line-height: 1.6;
+  }
+
+  .controls {
+    padding: 0 40px 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .ctrl-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .ctrl-btn:hover { border-color: #555; color: var(--text); }
+  .ctrl-btn.active {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .bg-row {
+    padding: 0 40px 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  .bg-row-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-right: 4px;
+    padding-top: 8px;
+  }
+  .bg-swatch {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 2px solid #333;
+    cursor: pointer;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+  .bg-swatch:hover { border-color: #666; transform: scale(1.1); }
+  .bg-swatch.active { border-color: var(--accent); transform: scale(1.1); }
+  .bg-swatch-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 2px;
+    line-height: 1.2;
+    max-width: 48px;
+  }
+  .bg-swatch-score {
+    font-size: 9px;
+    color: #666;
+    text-align: center;
+    font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+  }
+  .bg-swatch-score.top { color: var(--accent); }
+  .bg-swatch-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .bg-section {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .bg-sep {
+    width: 1px;
+    height: 32px;
+    background: var(--border);
+    margin: 0 4px;
+    align-self: flex-start;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 20px;
+    padding: 0 40px 80px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: border-color 0.2s ease;
+  }
+  .card:hover { border-color: #444; }
+  .card.hidden { display: none; }
+
+  .card-header {
+    padding: 20px 24px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid var(--border);
+  }
+  .card-number { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+  .card-title { font-size: 15px; font-weight: 600; letter-spacing: -0.2px; }
+  .card-tags { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .tag {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: var(--tag-bg);
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .tag.free { color: #4ecdc4; background: rgba(78, 205, 196, 0.1); }
+  .tag.system { color: #7eb8da; background: rgba(126, 184, 218, 0.1); }
+  .tag.paid { color: #f7b731; background: rgba(247, 183, 49, 0.1); }
+  .tag.top-pick { color: var(--accent); background: var(--accent-soft); }
+  .tag.current { color: #a78bfa; background: rgba(167, 139, 250, 0.1); }
+
+  .score-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 24px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    border: 1px solid;
+    padding: 0 6px;
+    flex-shrink: 0;
+  }
+  .score-badge.s-high { color: #4ecdc4; border-color: #4ecdc4; background: rgba(78, 205, 196, 0.1); }
+  .score-badge.s-mid { color: #f7b731; border-color: #f7b731; background: rgba(247, 183, 49, 0.1); }
+  .score-badge.s-low { color: #666; border-color: #444; background: rgba(100, 100, 100, 0.08); }
+  .score-reason {
+    font-size: 11px;
+    color: var(--text-muted);
+    padding: 8px 24px 14px;
+    line-height: 1.5;
+    font-style: italic;
+  }
+
+  .phone-frame {
+    margin: 20px 24px;
+    background: #111;
+    border-radius: 28px;
+    border: 2px solid #333;
+    padding: 12px;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .phone-screen {
+    background: #fff;
+    border-radius: 20px;
+    padding: 24px 20px;
+    min-height: 560px;
+    color: #111;
+    overflow: hidden;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  /* Background themes */
+  .phone-screen.bg-white { background: #ffffff; color: #111; }
+  .phone-screen.bg-current { background: #F2F2F2; color: #111; }
+  .phone-screen.bg-warm-cream { background: #F8F4F0; color: #1a1a1a; }
+  .phone-screen.bg-soft-blush { background: #FFF5F2; color: #1a1a1a; }
+  .phone-screen.bg-ivory { background: #FDFBF7; color: #1a1a1a; }
+  .phone-screen.bg-linen { background: #F5F0EB; color: #1a1a1a; }
+  .phone-screen.bg-lavender { background: #F5F3F8; color: #1a1a1a; }
+  .phone-screen.bg-dark { background: #141414; color: #eee; }
+  .phone-screen.bg-deep { background: #0D0D0D; color: #eee; }
+  .phone-screen.bg-plum { background: #1C1520; color: #e8e0ec; }
+
+  /* Dark variant overrides */
+  .phone-screen.bg-dark .s-h2, .phone-screen.bg-deep .s-h2, .phone-screen.bg-plum .s-h2 { color: #999; }
+  .phone-screen.bg-dark .s-divider, .phone-screen.bg-deep .s-divider, .phone-screen.bg-plum .s-divider { background: #2a2a2a; }
+  .phone-screen.bg-dark .s-small, .phone-screen.bg-deep .s-small, .phone-screen.bg-plum .s-small { color: #666; }
+  .phone-screen.bg-dark .s-chip, .phone-screen.bg-deep .s-chip, .phone-screen.bg-plum .s-chip { background: #252525; color: #aaa; }
+  .phone-screen.bg-dark .s-tile, .phone-screen.bg-deep .s-tile, .phone-screen.bg-plum .s-tile { background: #252525; }
+  .phone-screen.bg-dark .s-tile-label, .phone-screen.bg-deep .s-tile-label, .phone-screen.bg-plum .s-tile-label { color: #ccc; }
+  .phone-screen.bg-dark .s-btn, .phone-screen.bg-deep .s-btn, .phone-screen.bg-plum .s-btn { background: #c44569; }
+
+  /* Warm light variant tweaks */
+  .phone-screen.bg-warm-cream .s-divider, .phone-screen.bg-linen .s-divider { background: #e0d8cf; }
+  .phone-screen.bg-warm-cream .s-chip, .phone-screen.bg-linen .s-chip { background: #ede6dd; }
+  .phone-screen.bg-warm-cream .s-tile, .phone-screen.bg-linen .s-tile { background: #ede6dd; }
+  .phone-screen.bg-soft-blush .s-divider { background: #f0ddd8; }
+  .phone-screen.bg-soft-blush .s-chip { background: #fce9e4; }
+  .phone-screen.bg-soft-blush .s-tile { background: #fce9e4; }
+  .phone-screen.bg-lavender .s-divider { background: #ddd8e6; }
+  .phone-screen.bg-lavender .s-chip { background: #ece8f2; }
+  .phone-screen.bg-lavender .s-tile { background: #ece8f2; }
+  .phone-screen.bg-ivory .s-divider { background: #e8e2d8; }
+  .phone-screen.bg-ivory .s-chip { background: #f0ece4; }
+  .phone-screen.bg-ivory .s-tile { background: #f0ece4; }
+  .phone-screen.bg-current .s-chip { background: #e6e6e6; }
+  .phone-screen.bg-current .s-tile { background: #e6e6e6; }
+
+  .s-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #999;
+    margin-bottom: 4px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif !important;
+  }
+  .s-h1 { font-size: 26px; line-height: 1.2; margin-bottom: 4px; letter-spacing: -0.3px; }
+  .s-h2 { font-size: 17px; line-height: 1.3; margin-bottom: 12px; font-weight: 500; color: #555; }
+  .s-body { font-size: 15px; line-height: 1.6; margin-bottom: 12px; }
+  .s-em { font-style: italic; }
+  .s-strong { font-weight: 700; }
+  .s-small { font-size: 13px; line-height: 1.5; color: #777; }
+  .s-divider { height: 1px; background: #e0e0e0; margin: 14px 0; }
+
+  .s-stats { display: flex; justify-content: space-between; margin-bottom: 10px; }
+  .s-stat { text-align: center; }
+  .s-stat-val { font-size: 22px; font-weight: 700; line-height: 1.2; }
+  .s-stat-lbl { font-size: 11px; color: #999; margin-top: 2px; }
+
+  .s-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .s-chip {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    background: #f0f0f0;
+    color: #555;
+  }
+  .s-chip.on { background: var(--accent); color: #fff; }
+
+  /* Squircle button — iOS continuous corners approximation */
+  .s-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 17px 24px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #d04e73 0%, #b83d5e 100%);
+    color: #fff;
+    font-size: 17px;
+    font-weight: 700;
+    border: none;
+    margin-bottom: 12px;
+    width: 100%;
+    letter-spacing: 0.3px;
+    cursor: default;
+    box-shadow: 0 4px 14px rgba(196, 69, 105, 0.4), 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Tile buttons */
+  .s-tiles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .s-tile {
+    padding: 14px 10px;
+    border-radius: 14px;
+    background: #f0f0f0;
+    text-align: center;
+    cursor: default;
+  }
+  .s-tile-icon {
+    font-size: 20px;
+    margin-bottom: 4px;
+    line-height: 1.2;
+  }
+  .s-tile-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .card-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+  .fd { display: flex; justify-content: space-between; margin-bottom: 4px; }
+  .fd:last-child { margin-bottom: 0; }
+  .fd span:first-child { color: #666; }
+
+  .bg-codes {
+    padding: 0 40px 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .bg-codes-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    flex: 1;
+    min-width: 260px;
+  }
+  .bg-codes-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .bg-codes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .bg-code-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text);
+  }
+  .bg-code-item code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--tag-bg);
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+  .bg-code-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .bg-code-score {
+    font-size: 11px;
+    font-weight: 700;
+    color: #555;
+    margin-left: auto;
+  }
+  .bg-code-score.top { color: var(--accent); }
+
+  @media (max-width: 860px) {
+    .grid { grid-template-columns: 1fr; padding: 0 16px 60px; }
+    .page-header, .controls, .bg-row, .bg-codes { padding-left: 16px; padding-right: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Font Pairings — Bleed App</h1>
+  <p>14 pairings in mobile context. Each shows heading, subheading, body with emphasis, stats, buttons, tiles, and UI elements so you can compare how each pairing handles real app content.</p>
+</div>
+
+<div class="bg-codes">
+  <div class="bg-codes-section">
+    <div class="bg-codes-title">Light Mode (ranked)</div>
+    <div class="bg-codes-list">
+      <span class="bg-code-item"><span class="bg-code-dot" style="background:#FFF5F2;"></span>Soft Blush <code>#FFF5F2</code> <span class="bg-code-score top">92</span></span>
+      <span class="bg-code-item"><span class="bg-code-dot" style="background:#F8F4F0;"></span>Warm Cream <code>#F8F4F0</code> <span class="bg-code-score top">88</span></span>
+      <span class="bg-code-item"><span class="bg-code-dot" style="background:#FDFBF7;"></span>Ivory <code>#FDFBF7</code> <span class="bg-code-score">82</span></span>
+      <span class="bg-code-item"><span class="bg-code-dot" style="background:#F5F3F8;"></span>Lavender <code>#F5F3F8</code> <span class="bg-code-score">78</span></span>
+      <span class="bg-code-item"><span class="bg-code-dot" style="background:#F5F0EB;"></span>Linen <code>#F5F0EB</code> <span class="bg-code-score">74</span></span>
+      <span class="bg-code-item"><span class="bg-code-dot" style="background:#FFFFFF; border: 1px solid #333;"></span>White <code>#FFFFFF</code> <span class="bg-code-score">60</span></span>
+      <span class="bg-code-item"><span class="bg-code-dot" style="background:#F2F2F2;"></span>Current <code>#F2F2F2</code> <span class="bg-code-score">55</span></span>
+    </div>
+  </div>
+  <div class="bg-codes-section">
+    <div class="bg-codes-title">Dark Mode (ranked)</div>
+    <div class="bg-codes-list">
+      <span class="bg-code-item"><span class="bg-code-dot" style="background:#1C1520;"></span>Plum <code>#1C1520</code> <span class="bg-code-score top">85</span></span>
+      <span class="bg-code-item"><span class="bg-code-dot" style="background:#141414;"></span>Dark <code>#141414</code> <span class="bg-code-score">70</span></span>
+      <span class="bg-code-item"><span class="bg-code-dot" style="background:#0D0D0D;"></span>Deep <code>#0D0D0D</code> <span class="bg-code-score">65</span></span>
+    </div>
+  </div>
+</div>
+
+<div class="bg-row">
+  <span class="bg-row-label">Screen bg:</span>
+
+  <div class="bg-section">
+    <div class="bg-swatch-wrap">
+      <div class="bg-swatch" style="background: #FFF5F2;" onclick="setBg('bg-soft-blush', this)" title="Soft Blush #FFF5F2"></div>
+      <div class="bg-swatch-label">Blush</div>
+      <div class="bg-swatch-score top">92</div>
+    </div>
+    <div class="bg-swatch-wrap">
+      <div class="bg-swatch" style="background: #F8F4F0;" onclick="setBg('bg-warm-cream', this)" title="Warm Cream #F8F4F0"></div>
+      <div class="bg-swatch-label">Cream</div>
+      <div class="bg-swatch-score top">88</div>
+    </div>
+    <div class="bg-swatch-wrap">
+      <div class="bg-swatch" style="background: #FDFBF7;" onclick="setBg('bg-ivory', this)" title="Ivory #FDFBF7"></div>
+      <div class="bg-swatch-label">Ivory</div>
+      <div class="bg-swatch-score">82</div>
+    </div>
+    <div class="bg-swatch-wrap">
+      <div class="bg-swatch" style="background: #F5F3F8;" onclick="setBg('bg-lavender', this)" title="Lavender #F5F3F8"></div>
+      <div class="bg-swatch-label">Lavender</div>
+      <div class="bg-swatch-score">78</div>
+    </div>
+    <div class="bg-swatch-wrap">
+      <div class="bg-swatch" style="background: #F5F0EB;" onclick="setBg('bg-linen', this)" title="Linen #F5F0EB"></div>
+      <div class="bg-swatch-label">Linen</div>
+      <div class="bg-swatch-score">74</div>
+    </div>
+    <div class="bg-swatch-wrap">
+      <div class="bg-swatch active" style="background: #ffffff;" onclick="setBg('bg-white', this)" title="White #FFFFFF"></div>
+      <div class="bg-swatch-label">White</div>
+      <div class="bg-swatch-score">60</div>
+    </div>
+    <div class="bg-swatch-wrap">
+      <div class="bg-swatch" style="background: #F2F2F2;" onclick="setBg('bg-current', this)" title="Current #F2F2F2"></div>
+      <div class="bg-swatch-label">Current</div>
+      <div class="bg-swatch-score">55</div>
+    </div>
+  </div>
+
+  <div class="bg-sep"></div>
+
+  <div class="bg-section">
+    <div class="bg-swatch-wrap">
+      <div class="bg-swatch" style="background: #1C1520;" onclick="setBg('bg-plum', this)" title="Plum #1C1520"></div>
+      <div class="bg-swatch-label">Plum</div>
+      <div class="bg-swatch-score top">85</div>
+    </div>
+    <div class="bg-swatch-wrap">
+      <div class="bg-swatch" style="background: #141414;" onclick="setBg('bg-dark', this)" title="Dark #141414"></div>
+      <div class="bg-swatch-label">Dark</div>
+      <div class="bg-swatch-score">70</div>
+    </div>
+    <div class="bg-swatch-wrap">
+      <div class="bg-swatch" style="background: #0D0D0D;" onclick="setBg('bg-deep', this)" title="Deep Black #0D0D0D"></div>
+      <div class="bg-swatch-label">Deep</div>
+      <div class="bg-swatch-score">65</div>
+    </div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="ctrl-btn active" data-f="all" onclick="fil(this)">All</button>
+  <button class="ctrl-btn" data-f="top-pick" onclick="fil(this)">Top Picks</button>
+  <button class="ctrl-btn" data-f="current" onclick="fil(this)">Current Site</button>
+  <button class="ctrl-btn" data-f="serif" onclick="fil(this)">Serif + Sans</button>
+  <button class="ctrl-btn" data-f="sans" onclick="fil(this)">Sans + Sans</button>
+  <button class="ctrl-btn" data-f="system" onclick="fil(this)">System</button>
+  <button class="ctrl-btn" data-f="free" onclick="fil(this)">Free</button>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+const pairings = [
+  {
+    num: 1, title: "DM Serif Display + DM Sans",
+    tags: ["serif", "free", "top-pick"], tagLabels: {"top-pick":"Top Pick", free:"Free"},
+    hFont: "'DM Serif Display', serif", hWeight: "400",
+    bFont: "'DM Sans', sans-serif",
+    footH: "DM Serif Display — Google Fonts",
+    footB: "DM Sans — Google Fonts",
+    why: "Designed as a family. Elegant serif headers + clean geometric body.",
+    score: 90,
+    reason: "Serif headings say 'editorial, premium, not your average health app.' The serif/sans contrast gives Bleed an identity competitors don't have — Flo and Clue both use generic sans-serif. DM Sans handles stats and UI cleanly. The elegance matches the 'juiciest, most trustworthy gossiper' positioning without being corporate."
+  },
+  {
+    num: 2, title: "Fraunces + Inter",
+    tags: ["serif", "free"], tagLabels: {free:"Free"},
+    hFont: "'Fraunces', serif", hWeight: "600",
+    bFont: "'Inter', sans-serif",
+    footH: "Fraunces — Google Fonts (variable)",
+    footB: "Inter — Google Fonts",
+    why: "Retro-modern warmth in headings. Inter is the king of screen readability.",
+    score: 87,
+    reason: "Fraunces has PERSONALITY — its wonky, organic shapes feel rebellious and warm, not clinical. That's the Period Dealer energy. The retro-modern vibe says 'I'm different and I know it.' Inter as the workhorse body font keeps everything readable. The pairing screams premium DTC brand."
+  },
+  {
+    num: 3, title: "Clash Display + Satoshi",
+    tags: ["sans", "free"], tagLabels: {free:"Free"},
+    hFont: "'Clash Display', sans-serif", hWeight: "600",
+    bFont: "'Satoshi', sans-serif",
+    footH: "Clash Display — Fontshare (free)",
+    footB: "Satoshi — Fontshare (free)",
+    why: "Bold editorial headings. Tight apertures make it eye-catching.",
+    score: 83,
+    reason: "Clash Display has the CONFIDENCE of the Period Dealer voice — bold, tight, unapologetic. Headlines make a statement. Satoshi keeps the body clean and modern. This is the 'says what the industry won't' aesthetic. Slightly less warm than the serif options, which is why it's not #1."
+  },
+  {
+    num: 4, title: "Playfair Display + Raleway",
+    tags: ["serif", "free"], tagLabels: {free:"Free"},
+    hFont: "'Playfair Display', serif", hWeight: "700",
+    bFont: "'Raleway', sans-serif",
+    footH: "Playfair Display — Google Fonts",
+    footB: "Raleway — Google Fonts",
+    why: "Luxury editorial aesthetic. High-end magazine feel for women's health.",
+    score: 74,
+    reason: "The luxury magazine aesthetic works for the 'insider gossip' angle, but Playfair's thin strokes can be tricky at small mobile sizes. Raleway is elegant but thin — might feel fragile. Good for editorial content screens, less ideal for the data-heavy tracking UI."
+  },
+  {
+    num: 5, title: "Figtree + DM Sans",
+    tags: ["sans", "free"], tagLabels: {free:"Free"},
+    hFont: "'Figtree', sans-serif", hWeight: "700",
+    bFont: "'DM Sans', sans-serif",
+    footH: "Figtree — Google Fonts",
+    footB: "DM Sans — Google Fonts",
+    why: "Fresh and friendly, not trendy. Both built for screens in the 2020s.",
+    score: 65,
+    reason: "Modern and clean — would work for a 'nice' health app. But Bleed isn't 'nice,' it's bold. Figtree lacks the personality edge that the brand voice demands. Fine technically, but doesn't match the energy."
+  },
+  {
+    num: 6, title: "SF Pro Display + New York",
+    tags: ["serif", "system", "free"], tagLabels: {system:"System", free:"Free"},
+    hFont: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif", hWeight: "700",
+    bFont: "'New York', 'Iowan Old Style', Georgia, serif",
+    footH: "SF Pro Display — Apple System",
+    footB: "New York — Apple System",
+    why: "Zero bundle size. Native iOS feel. Dynamic Type built in.",
+    score: 62,
+    reason: "Technically excellent — zero overhead, native accessibility, serif body adds warmth. But it looks like every other well-made iOS app. Bleed needs to stand OUT, not blend into the system. Good fallback if custom fonts cause performance issues."
+  },
+  {
+    num: 7, title: "Mulish + Karla",
+    tags: ["sans", "free"], tagLabels: {free:"Free"},
+    hFont: "'Mulish', sans-serif", hWeight: "700",
+    bFont: "'Karla', sans-serif",
+    footH: "Mulish — Google Fonts",
+    footB: "Karla — Google Fonts",
+    why: "Cited as ideal for wellness/health-tech. Calm and adaptable.",
+    score: 55,
+    reason: "'Calm and adaptable' is the opposite of the Period Dealer voice. This is a meditation app pairing, not a 'says what the industry won't' pairing. Clean and readable, but zero personality. Bleed would look like Calm's period tracker."
+  },
+  {
+    num: 8, title: "Manrope + Inter",
+    tags: ["sans", "free"], tagLabels: {free:"Free"},
+    hFont: "'Manrope', sans-serif", hWeight: "700",
+    bFont: "'Inter', sans-serif",
+    footH: "Manrope — Google Fonts",
+    footB: "Inter — Google Fonts",
+    why: "Manrope has great numerals for health stats. Inter is proven for UI.",
+    score: 52,
+    reason: "Good numerals, great readability, but this is a dashboard/fintech pairing. Feels clinical and data-forward. The Period Dealer isn't a dashboard — she's a gossip with receipts. Too neutral."
+  },
+  {
+    num: 9, title: "Satoshi + General Sans",
+    tags: ["sans", "free"], tagLabels: {free:"Free"},
+    hFont: "'Satoshi', sans-serif", hWeight: "700",
+    bFont: "'General Sans', sans-serif",
+    footH: "Satoshi — Fontshare (free)",
+    footB: "General Sans — Fontshare (free)",
+    why: "The 'premium startup' look. Linear, Vercel aesthetic. Precise and modern.",
+    score: 48,
+    reason: "Beautiful fonts, wrong app. This is the 'Y Combinator startup' aesthetic — precise, cold, tech-forward. Bleed is warm, bold, personal. Would make the app feel like a dev tool, not a period tracker with personality."
+  },
+  {
+    num: 10, title: "Period Dealer (Novecento Sans + Lato)",
+    tags: ["current", "sans"], tagLabels: {current:"Current Site"},
+    hFont: "'novecento-sans-condensed', sans-serif", hWeight: "600",
+    bFont: "'Lato', sans-serif",
+    footH: "Novecento Sans Condensed — Adobe Typekit",
+    footB: "Lato — Google Fonts",
+    why: "Your current perioddealer.com pairing. Condensed uppercase headings + warm humanist body.",
+    score: 45,
+    reason: "Works on the website where headings are big and uppercase. On mobile, condensed fonts lose impact at smaller sizes and the uppercase style feels stiff in an app context. Lato is warm but generic — doesn't differentiate from competitors. Also, Typekit adds a dependency."
+  },
+  {
+    num: 11, title: "Lato + Merriweather",
+    tags: ["serif", "free"], tagLabels: {free:"Free"},
+    hFont: "'Lato', sans-serif", hWeight: "900",
+    bFont: "'Merriweather', serif",
+    footH: "Lato — Google Fonts",
+    footB: "Merriweather — Google Fonts",
+    why: "Trustworthy + professional. Merriweather built for screen reading.",
+    score: 44,
+    reason: "This is a doctor's office pairing — trustworthy and professional, but the Period Dealer isn't a doctor. She's your best friend who happens to know everything about your cycle. Too conservative for the brand energy."
+  },
+  {
+    num: 12, title: "Lexend + Zilla Slab",
+    tags: ["serif", "free"], tagLabels: {free:"Free"},
+    hFont: "'Lexend', sans-serif", hWeight: "700",
+    bFont: "'Zilla Slab', serif",
+    footH: "Lexend — Google Fonts",
+    footB: "Zilla Slab — Google Fonts",
+    why: "Lexend is research-backed for readability. Accessibility-first choice.",
+    score: 42,
+    reason: "Accessibility is important and should be solved at the system level (Dynamic Type support), not by choosing fonts that prioritize function over personality. Looks more like a government health portal than a premium gossip health app."
+  },
+  {
+    num: 13, title: "SF Pro + SF Pro Rounded",
+    tags: ["sans", "system", "free"], tagLabels: {system:"System"},
+    hFont: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif", hWeight: "700",
+    bFont: "ui-rounded, 'SF Pro Rounded', -apple-system, sans-serif",
+    footH: "SF Pro Display — Apple System",
+    footB: "SF Pro Rounded — Apple System",
+    why: "Apple uses this in Health + Fitness apps. Friendly yet polished.",
+    score: 40,
+    reason: "This IS Apple Health. Literally. If you use this, Bleed looks like a reskinned Apple Health widget. The rounded style is friendly but says 'I'm a system utility,' not 'I'm the juiciest health gossiper in the world.'"
+  },
+  {
+    num: 14, title: "Montserrat + Source Sans 3",
+    tags: ["sans", "free"], tagLabels: {free:"Free"},
+    hFont: "'Montserrat', sans-serif", hWeight: "700",
+    bFont: "'Source Sans 3', sans-serif",
+    footH: "Montserrat — Google Fonts",
+    footB: "Source Sans 3 — Google Fonts",
+    why: "Battle-tested classic. Works for content-heavy apps with lots of reading.",
+    score: 38,
+    reason: "Montserrat is on every second website and app since 2016. It's the Helvetica of Google Fonts — inoffensive but invisible. Using this says 'we picked the first Google Fonts result.' No differentiation whatsoever."
+  }
+];
+
+function renderCard(p) {
+  const tagHTML = Object.entries(p.tagLabels).map(([k,v]) =>
+    `<span class="tag ${k}">${v}</span>`
+  ).join('');
+
+  const scoreClass = p.score >= 75 ? 's-high' : p.score >= 50 ? 's-mid' : 's-low';
+
+  return `
+  <div class="card" data-tags="${p.tags.join(' ')}" data-score="${p.score}">
+    <div class="card-header">
+      <div>
+        <div class="card-number">#${p.num}</div>
+        <div class="card-title">${p.title}</div>
+      </div>
+      <div class="card-tags">${tagHTML}<span class="score-badge ${scoreClass}">${p.score}</span></div>
+    </div>
+    <div class="phone-frame"><div class="phone-screen">
+      <div class="s-label">Heading</div>
+      <div class="s-h1" style="font-family: ${p.hFont}; font-weight: ${p.hWeight};">Your Cycle, Explained</div>
+      <div class="s-h2" style="font-family: ${p.bFont}; font-weight: 500;">Follicular Phase — Day 8 of 28</div>
+      <div class="s-divider"></div>
+      <div class="s-stats">
+        <div class="s-stat">
+          <div class="s-stat-val" style="font-family: ${p.bFont};">28</div>
+          <div class="s-stat-lbl" style="font-family: ${p.bFont};">Cycle Days</div>
+        </div>
+        <div class="s-stat">
+          <div class="s-stat-val" style="font-family: ${p.bFont};">5</div>
+          <div class="s-stat-lbl" style="font-family: ${p.bFont};">Period Days</div>
+        </div>
+        <div class="s-stat">
+          <div class="s-stat-val" style="font-family: ${p.bFont};">14</div>
+          <div class="s-stat-lbl" style="font-family: ${p.bFont};">Until Next</div>
+        </div>
+      </div>
+      <div class="s-divider"></div>
+      <div class="s-body" style="font-family: ${p.bFont};">Your body is in the follicular phase. Energy levels tend to rise as <span class="s-em" style="font-family: ${p.bFont};">estrogen increases naturally</span>. A good time to <span class="s-strong" style="font-family: ${p.bFont};">start new projects</span> and push harder in workouts.</div>
+      <div class="s-chips">
+        <span class="s-chip on" style="font-family: ${p.bFont};">Mood</span>
+        <span class="s-chip" style="font-family: ${p.bFont};">Energy</span>
+        <span class="s-chip" style="font-family: ${p.bFont};">Sleep</span>
+        <span class="s-chip" style="font-family: ${p.bFont};">Flow</span>
+      </div>
+      <div class="s-btn" style="font-family: ${p.bFont}; font-weight: 600;">Log Today</div>
+      <div class="s-tiles">
+        <div class="s-tile">
+          <div class="s-tile-icon">📋</div>
+          <div class="s-tile-label" style="font-family: ${p.bFont};">Symptoms</div>
+        </div>
+        <div class="s-tile">
+          <div class="s-tile-icon">✨</div>
+          <div class="s-tile-label" style="font-family: ${p.bFont};">Insights</div>
+        </div>
+      </div>
+      <div class="s-small" style="font-family: ${p.bFont};"><span class="s-em" style="font-family: ${p.bFont};">Your data never leaves this device.</span> Last logged: Today at 9:14 AM</div>
+    </div></div>
+    <div class="score-reason">${p.reason}</div>
+    <div class="card-footer">
+      <div class="fd"><span>Heading</span><span>${p.footH}</span></div>
+      <div class="fd"><span>Body</span><span>${p.footB}</span></div>
+    </div>
+  </div>`;
+}
+
+document.getElementById('grid').innerHTML = pairings.map(renderCard).join('');
+
+const bgClasses = ['bg-white','bg-current','bg-warm-cream','bg-soft-blush','bg-ivory','bg-linen','bg-lavender','bg-dark','bg-deep','bg-plum'];
+
+function setBg(cls, btn) {
+  document.querySelectorAll('.phone-screen').forEach(el => {
+    bgClasses.forEach(c => el.classList.remove(c));
+    el.classList.add(cls);
+  });
+  document.querySelectorAll('.bg-swatch').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function fil(btn) {
+  const f = btn.dataset.f;
+  document.querySelectorAll('[data-f]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.card').forEach(card => {
+    card.classList.toggle('hidden', f !== 'all' && !(card.dataset.tags || '').includes(f));
+  });
+}
+</script>
+
+</body>
+</html>

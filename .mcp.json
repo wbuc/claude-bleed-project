@@ -2,7 +2,25 @@
   "mcpServers": {
     "brave-search": {
       "command": "npx",
-      "args": ["-y", "dotenv-cli", "-e", ".env", "--", "npx", "-y", "@anthropic-ai/mcp-server-brave-search"]
+      "args": [
+        "-y",
+        "dotenv-cli",
+        "-e",
+        ".env",
+        "--",
+        "npx",
+        "-y",
+        "@anthropic-ai/mcp-server-brave-search"
+      ]
+    },
+    "apple-docs": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@kimsungwhee/apple-docs-mcp@latest"
+      ],
+      "env": {}
     }
   }
 }
